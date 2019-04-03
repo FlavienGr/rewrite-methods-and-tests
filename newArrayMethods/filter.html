@@ -1,0 +1,74 @@
+<script src="../tinytest.js"></script>
+<script>
+  const filter = (arr, cb, objectAccessible) => {
+    let filterCallback = cb;
+    if (objectAccessible) {
+      filterCallback = cb.bind(objectAccessible);
+    }
+    const newArray = [];
+    for (let i = 0; i < arr.length; i++) {
+      if (filterCallback(arr[i], i, arr)) {
+        newArray.push(arr[i]);
+      }
+    }
+    return newArray;
+  };
+
+  tests({
+    "it should run the callback function array.length times": function() {
+      const array = [1, 2, 3];
+      let size = 0;
+      filter(array, function(element) {
+        size++;
+      });
+      eq(array.length, size);
+    },
+
+    "it should pass in the ith element as the first argument to the callback": function() {
+      const arr = [1];
+      filter(arr, item => {
+        eq(item, 1);
+      });
+    },
+
+    "it should pass in the position i as the second argument to the callback": () => {
+      const arr = [1];
+      filter(arr, (item, i) => {
+        eq(i, 0);
+      });
+    },
+    "It should pass in the original to as the third element": () => {
+      const arr = [1, 2, 3];
+      filter(arr, (item, i, array) => {
+        eq(array, arr);
+      });
+    },
+    "It should accept an optional this object": function() {
+      const arr = [1];
+      filter(
+        arr,
+        function() {
+          eq(this.description, "I should be accessible inside the callback");
+        },
+        { description: "I should be accessible inside the callback" }
+      );
+    },
+    "it should return an array": function() {
+      const filterArray = filter([], function() {});
+      eq(Array.isArray(filterArray), true);
+    },
+    "it should return a new array, not the array being filtered": function() {
+      const array = [1, 2];
+      const filterArray = filter(array, function() {});
+      eq(Array.isArray(filterArray), true);
+      eq(filterArray !== array, true);
+    },
+    "it should return a new array, that only has element where callback returns true": function() {
+      const filteredArray = filter([1, 2], function(item) {
+        return item > 1;
+      });
+      eq(filteredArray.length, 1);
+      eq(filteredArray[0], 2);
+    }
+  });
+</script>

@@ -1,0 +1,61 @@
+<script src="../tinytest.js"></script>
+<script src="adder.js"></script>
+<script>
+  // const array = [1, 2, 3];
+  // const loopForEach = (arr, cb) => {
+  //   for (let i = 0; i < arr.length; i++) {
+  //     cb(arr[i]);
+  //   }
+  // };
+  // loopForEach(array, data => console.log(data));
+
+  const loopForEach = (arr, cb, configurableThisObject) => {
+    let forEachCallback = cb;
+    if (configurableThisObject) {
+      forEachCallback = cb.bind(configurableThisObject);
+    }
+    for (let i = 0; i < arr.length; i++) {
+      forEachCallback(arr[i], i, arr);
+    }
+  };
+  tests({
+    "it should run the callback function array.length times": function() {
+      let count = 0;
+      const arr = [1, 2, 3];
+      arr.forEach(() => {
+        count++;
+      });
+      eq(3, count);
+    },
+
+    "it should pass in the ith element as the first argument to the callback": function() {
+      const arr = [1];
+      arr.forEach(item => {
+        eq(item, 1);
+      });
+    },
+
+    "it should pass in the position i as the second argument to the callback": () => {
+      const arr = [1];
+      loopForEach(arr, (item, i) => {
+        eq(i, 0);
+      });
+    },
+    "It should pass in the original to as the third element": () => {
+      const arr = [1, 2, 3];
+      loopForEach(arr, (item, i, array) => {
+        eq(array, arr);
+      });
+    },
+    "It should accept a configurable this object": function() {
+      const arr = [1];
+      loopForEach(
+        arr,
+        function() {
+          eq(this.description, "CONFIGURABLE this object");
+        },
+        { description: "CONFIGURABLE this object" }
+      );
+    }
+  });
+</script>

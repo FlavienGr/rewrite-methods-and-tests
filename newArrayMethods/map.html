@@ -1,0 +1,84 @@
+<script src="../tinytest.js"></script>
+<script>
+  const map = (originalarray, callback, optionalargument) => {
+    let mapCallback = callback;
+
+    if (optionalargument) {
+      mapCallback = callback.bind(optionalargument);
+    }
+    const mappedArray = [];
+    for (let i = 0; i < originalarray.length; i++) {
+      if (i in originalarray) {
+        // mappedArray.push(mapCallback(originalarray[i], i, originalarray));
+        mappedArray[i] = mapCallback(originalarray[i], i, originalarray);
+      }
+    }
+
+    return mappedArray;
+  };
+
+  tests({
+    "it should run the callback function array.length times": function() {
+      const array = [1, 2, 3];
+      let size = 0;
+      map(array, function(element) {
+        size++;
+      });
+      eq(array.length, size);
+    },
+
+    "it should pass in the ith element as the first argument to the callback": function() {
+      const arr = [1];
+      map(arr, item => {
+        eq(item, 1);
+      });
+    },
+
+    "it should pass in the position i as the second argument to the callback": () => {
+      const arr = [1];
+      map(arr, (item, i) => {
+        eq(i, 0);
+      });
+    },
+    "It should pass in the original to as the third element": () => {
+      const arr = [1, 2, 3];
+      map(arr, (item, i, array) => {
+        eq(array, arr);
+      });
+    },
+    "It should accept an optional this object": function() {
+      const arr = [1];
+      map(
+        arr,
+        function() {
+          eq(this.description, "I should be accessible inside the callback");
+        },
+        { description: "I should be accessible inside the callback" }
+      );
+    },
+    "it should return an array": function() {
+      const mapArray = map([], function() {});
+      eq(Array.isArray(mapArray), true);
+    },
+    "it should return a new array, not the original array": function() {
+      const array = [1, 2];
+      const mapArray = map(array, function() {});
+      eq(Array.isArray(mapArray), true);
+      eq(mapArray !== array, true);
+    },
+    "it should return a new array, that only has element that have been transform by  callback": function() {
+      const mapArray = map([1, 2], function(item) {
+        return item * 5;
+      });
+      eq(mapArray[0], 5);
+    },
+    "it should skip unassigned indexes": function() {
+      const weirdArray = [, 1];
+      const mappedArray = map(weirdArray, number => {
+        return number * 2;
+      });
+      eq(0 in mappedArray, false);
+      eq(mappedArray[1], 2);
+    }
+  });
+</script>

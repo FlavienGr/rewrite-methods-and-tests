@@ -1,0 +1,187 @@
+<script src="../tinytest.js"></script>
+<script>
+  /* function structure
+
+         find(array, callback) {
+             let findWord = ""
+             for (let i= 0; i< array.lentgh ; i++) {
+                findWord =  callback(array[i], array)
+                if(findWord !== undefined) {
+                    return findWord
+                }
+         }
+
+     }*/
+
+  //callback
+  // element
+  // optional
+  // index
+  // array
+  // this arg
+
+  // Should executes the callback function once for each index of the array
+  // If the word is find, should returns the value of the first element in the array.
+  // If no word, undefined is returned.
+  // Should runs on all indexes
+  // Should not mutate the array on which it is called.
+
+  function find(array, callback, optionalObject) {
+    if (!Array.isArray(array)) throw new TypeError("Array is not an array");
+    if (typeof callback !== "function")
+      throw new TypeError("Callback is not a function");
+    if (array.length === 0) return undefined;
+
+    let findCallback = callback;
+    if (optionalObject) {
+      findCallback = callback.bind(optionalObject);
+    }
+    const length = array.length;
+    for (let i = 0; i < length; i++) {
+      if (findCallback(array[i], i, array)) {
+        return array[i];
+      }
+    }
+    return undefined;
+  }
+
+  tests({
+    "Should executes the callback function once for each index of the array": function() {
+      const arr = ["bird", "dog", "cat"];
+      let numberOfCallback = 0;
+      find(arr, () => {
+        numberOfCallback++;
+      });
+      eq(arr.length, numberOfCallback);
+    },
+
+    "If the word is find, should returns the value of the first element in the array": function() {
+      const arr = ["bird", "dog", "cat"];
+      const result = find(arr, element => {
+        return element === arr[2] ? element : undefined;
+      });
+      eq(result, arr[2]);
+    },
+
+    "If no word, undefined is returned": () => {
+      const arr = ["bird", "dog", "cat"];
+      const result = find(arr, element => {
+        return element === "horse" ? element : undefined;
+      });
+      eq(result, undefined);
+    },
+    "Should runs on all indexes": () => {
+      let numberOfCallback = 0;
+      const arr = ["bird", "dog", , , , "cat"];
+
+      find(arr, () => {
+        numberOfCallback++;
+      });
+      eq(arr.length, numberOfCallback);
+    },
+    "it should pass in an optional index as the second argument to the callback": () => {
+      const arr = ["bird", "cat"];
+      const result = [];
+      find(arr, (element, index) => {
+        result.push(index);
+      });
+      eq(result[1], 1);
+    },
+    "It should pass an optional original array to as the third element": () => {
+      const arr = ["bird", "cat"];
+      const result = [];
+      find(arr, (element, index, array) => {
+        eq(array === arr, true);
+      });
+    },
+    "It should pass in the ith element as the first argument to the callback.": () => {
+      const arr = ["cat"];
+      find(arr, function(item, i) {
+        eq(item, "cat");
+      });
+    },
+
+    "It should accept an optional this object": function() {
+      const arr = ["bird", "cat"];
+
+      find(
+        arr,
+        function() {
+          eq(this.description, "I should be accessible inside the callback");
+        },
+        { description: "I should be accessible inside the callback" }
+      );
+    },
+    "If array is empty return undefined without calling callback": () => {
+      const arr = [];
+      let numberOfCallback = 0;
+      const result = find(arr, function() {
+        numberOfCallback++;
+      });
+      eq(numberOfCallback, 0);
+      eq(result, undefined);
+    },
+    "Should not mutate the array on which it is called.": () => {
+      const arr = [];
+      const backUp = arr;
+      const result = find(arr, () => {});
+      eq(arr === backUp, true);
+    },
+    "It should not visit elements that are appended to the array after the call to find begins.": () => {
+      const arr = [1, 2, 3];
+      let numberOfCallback = 0;
+
+      find(arr, (element, index) => {
+        if (index === 0) {
+          arr.push(7);
+        }
+        numberOfCallback++;
+      });
+      eq(numberOfCallback, 3);
+    },
+    "If an existing, unvisited element of the array is changed by callback, its value passed to the visiting callback will be the value at the time that find visits that element's index.": () => {
+      const arr = [1, 2, 3];
+
+      find(arr, (element, index) => {
+        if (index === 0) {
+          arr[arr.length - 1] = "cat";
+        }
+        if (index === arr.length - 1) {
+          eq(element, "cat");
+        }
+      });
+    },
+    "Should visits elements that are deleted.": () => {
+      const arr = [1, 2, 3];
+      let numberOfCallback = 0;
+
+      find(arr, (element, index) => {
+        if (index === 0) {
+          delete arr[arr.length - 1];
+        }
+        if (index === arr.length - 1) {
+          eq(element, undefined);
+        }
+        numberOfCallback++;
+      });
+      eq(numberOfCallback, 3);
+    },
+    "Should throw a TypeError if array is not an array.": () => {
+      const arr = {};
+
+      try {
+        find(arr, () => {});
+      } catch (e) {
+        eq(e instanceof TypeError, true);
+      }
+    },
+    "Should throw a TypeError if callback is not a function.": () => {
+      const arr = {};
+      try {
+        find([1, 2], arr);
+      } catch (e) {
+        eq(e instanceof TypeError, true);
+      }
+    }
+  });
+</script>
