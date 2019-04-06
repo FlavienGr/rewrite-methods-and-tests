@@ -1,0 +1,88 @@
+<script src="../tinytest.js"></script>
+<script>
+  // Return value
+  // The first index of the element in the array; -1 if not found.
+
+  //Parameters
+  // Element to locate in the array.
+  ////////////Optional
+  /////////////The index to start the search at.
+
+  ///////////////// TEST
+  // return the first index element found
+  // return -1 if element is not found
+
+  // If there is an optionnal index is greater than or equal to the array's length, -1 is returned,
+  // If the provided index value is a negative number, it is taken as the offset from the end of the array
+
+  // indexOf() compares searchElement to elements of the Array using strict equality (the same method used by the === or triple-equals operator).
+
+  const indexOf = (array, element, index) => {
+    if (!Array.isArray(array)) throw new SyntaxError("should be an array");
+
+    if (!element) {
+      return -1;
+    }
+    let startIndex = 0;
+
+    if (index) {
+      if (index >= array.length) {
+        return -1;
+      } else if (index < 0) {
+        startIndex = array.length - Math.abs(index);
+      } else {
+        startIndex = index;
+      }
+    }
+
+    for (let i = startIndex; i < array.length; i++) {
+      if (array[i] === element) {
+        return i;
+      }
+    }
+    return -1;
+  };
+  tests({
+    "Should return the first index of the search element found ": function() {
+      const arr = ["system", "js", "computer"];
+
+      const result = indexOf(arr, "system");
+      eq(result, 0);
+    },
+    "Should return -1 if the search element is not found.": function() {
+      const arr = ["system", "js", "computer"];
+
+      const result = indexOf(arr, "apple");
+      eq(result, -1);
+    },
+    "If there is an optionnal index is greater than or equal to the length of the array, -1 is returned.": function() {
+      const arr = ["system", "js", "computer"];
+
+      const result = indexOf(arr, "system", 3);
+      eq(result, -1);
+    },
+    "If the provided index value is a negative number, it is taken as the offset from the end of the array": function() {
+      const arr = ["system", "js", "computer"];
+
+      const result = indexOf(arr, "js", -9);
+      console.log(result);
+      eq(result, 1);
+    },
+    "indexOf() compares searchElement to elements of the Array using strict equality (the same method used by the === or triple-equals operator)": function() {
+      const arr = ["system", "js", "computer", "5"];
+
+      const result = indexOf(arr, 5);
+
+      eq(result, -1);
+    },
+    "If not an Array, should throw Uncaught SyntaxError: Unexpected token.": function() {
+      const arr = { desc: "error" };
+
+      try {
+        const result = indexOf(arr, "desc");
+      } catch (e) {
+        eq(e instanceof SyntaxError, true);
+      }
+    }
+  });
+</script>

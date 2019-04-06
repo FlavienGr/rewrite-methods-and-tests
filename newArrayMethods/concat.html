@@ -1,0 +1,118 @@
+<script src="../tinytest.js"></script>
+<script>
+  // Return value
+  //A new Array instance.
+
+  //Parameters
+  // valueN Optional
+
+  ///////////////// TEST
+  // does not change the existing arrays
+  // returns a new array.
+
+  // If valueN is undefined, concat returns a shallow copy of the existing array on which it is called.
+
+  // Concat creates a new array consisting of the elements in the object on which it is called
+
+  // Should be followed in order by, for each argument, the elements of that argument (if the argument is an array)
+
+  // Should be followed in order by the argument itself (if the argument is not an array)
+
+  // It does not recurse into nested array arguments.
+
+  // Concat method does not alter this
+  // Concat method does not alter the arrays provided as arguments
+
+  // If not an Array, should throw Uncaught SyntaxError: Unexpected token
+
+  // If an object reference is an element of any argument then it should copy object references into the new array. Both the original and new array should refer to the same object
+  const concat = (array, ...data) => {
+    if (!Array.isArray(array)) throw new SyntaxError("should be an array");
+    if (array.length < 1 && data === undefined) return newArray;
+    const newArray = array.slice();
+    if (data !== undefined) {
+      data.forEach(item => {
+        if (item instanceof Array) {
+          item.forEach(element => newArray.push(element));
+        } else {
+          newArray.push(item);
+        }
+      });
+    }
+    return newArray;
+  };
+  tests({
+    "Should not change the existing arrays": function() {
+      const arr = [3, 5];
+      const data = undefined;
+      const result = concat(arr, data);
+      eq(arr[0], 3);
+      eq(arr[1], 5);
+    },
+    "Should returns a new array.": function() {
+      const arr = [3, 5];
+      const data = undefined;
+      const result = concat(arr, data);
+      eq(result !== arr, true);
+    },
+    "If valueN is undefined, concat returns a shallow copy of the existing array on which it is called.": function() {
+      const arr = [3, 5];
+      const data = undefined;
+      const result = concat(arr, data);
+      eq(arr[0], 3);
+      eq(arr[1], 5);
+      eq(result !== arr, true);
+    },
+    "Should creates a new array consisting of the elements in the object on which it is called": function() {
+      const arr = [3, 5, 6];
+      const data = undefined;
+      const result = concat(arr, data);
+      eq(arr[0], 3);
+      eq(arr[1], 5);
+      eq(arr[2], 6);
+    },
+    "Should be followed in order by, for each argument, the elements of that argument (if the argument is an array)": function() {
+      const arr = [3, 5, 6];
+      const data = [7, 8];
+      const result = concat(arr, data);
+      eq(result[0], 3);
+      eq(result[result.length - 1], 8);
+      eq(result.length, 5);
+    },
+    "Should be followed in order by the argument itself (if the argument is not an array)": function() {
+      const arr = [3, 5, 6];
+      const data = 8;
+      const result = concat(arr, data);
+      eq(result[0], 3);
+      eq(result[result.length - 1], 8);
+      eq(result.length, 4);
+    },
+    "It does not recurse into nested array arguments.": function() {
+      const arr = [3, 5, 6];
+      const data = [6, [9]];
+      const result = concat(arr, data);
+      eq(Array.isArray(result[result.length - 1]), true);
+      eq(result.length, 5);
+    },
+    "Concat method does not alter this.": function() {
+      const arr = [3, 5, 6];
+      const data = [6, [9]];
+      const result = concat(arr, data);
+      eq(arr.length, 3);
+      eq(data.length, 2);
+    },
+    "If an object reference is an element of any argument then it should copy object references into the new array. Both the original and new array should refer to the same object": function() {
+      const data = [{ password: "123" }];
+      const result = concat([], data);
+      eq(result[0], data[0]);
+    },
+    "If not an Array, should throw Uncaught SyntaxError: Unexpected token.": function() {
+      const data = [{ password: "123" }];
+      try {
+        const result = concat(true, data);
+      } catch (e) {
+        eq(e instanceof SyntaxError, true);
+      }
+    }
+  });
+</script>

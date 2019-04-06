@@ -32,13 +32,13 @@
     while (!startIndex in array && startIndex < length) {
       startIndex++;
     }
-    let findCallback = callback;
+    let someCallback = callback;
     if (optionalObject) {
-      findCallback = callback.bind(optionalObject);
+      someCallback = callback.bind(optionalObject);
     }
     for (let i = startIndex; i < length; i++) {
       if (i in array) {
-        if (findCallback(array[i], i, array)) {
+        if (someCallback(array[i], i, array)) {
           return true;
         }
       }

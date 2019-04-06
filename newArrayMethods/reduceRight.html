@@ -1,0 +1,205 @@
+<script src="../tinytest.js"></script>
+<script>
+  // Return value
+  //The value that results from the reduction..
+
+  //callback
+  // accumulator
+  // currentValue
+  /////////////// optional
+  // index
+  // array
+
+  /////////////// optional
+  // initialValueOptional
+
+  //Object to use as the first argument to the first call of the callback. If no initial value is supplied, the last element in the array will be used. Calling reduce on an empty array without an initial value is an error.
+
+  ///////////////// TEST
+  // callback should return an accumulator and currenValue
+  // callback should return an optional index and/or  array
+
+  //  Should runs the callback function once for each element present in the array,
+  // Should excluding holes in the array,
+
+  // If an initialValue was provided in the call to reduceRight, then accumulator will be equal to initialValue  and currentValue will be equal to the last value in the array
+  // If no initialValue was provided, then accumulator will be equal to the last value in the array and currentValue will be equal to the second-to-last value.
+
+  //If the array has only one element (regardless of position) and no initialValue was provided, or if initialValue is provided but the array is empty, the solo value would be returned without calling callback.
+
+  // Calling reduce on an empty array without an initial value is an error.
+
+  // should return a reduction de right to left
+
+  function reduceRight(array, callback, initialValue) {
+    if (!Array.isArray(array)) throw new TypeError("Array is not an array");
+    if ("function" !== typeof callback) {
+      throw new TypeError(callback + " is not a function");
+    }
+
+    //////////////// Variables
+    const length = array.length;
+    const last = length - 1;
+    let startIndex = last;
+    let previousValue = initialValue;
+
+    if (arguments.length < 3) {
+      if (length === 0) {
+        throw new TypeError(
+          "Reduce of empty array with no initial value at Array.reduceRight"
+        );
+      }
+      if (length === 1) {
+        return array[0];
+      }
+      /// excludes first hole if there is one
+      while (!startIndex in array && startIndex >= 0) {
+        startIndex--;
+      }
+      /// check if optionalValue is there and set the value of accumulator
+      previousValue = array[startIndex];
+      startIndex--;
+    } else {
+      if (length === 0) {
+        return previousValue;
+      }
+    }
+
+    for (let i = startIndex; i >= 0; i--) {
+      if (i in array) {
+        previousValue = callback(previousValue, array[i], i, array);
+      }
+    }
+
+    return previousValue;
+  }
+
+  tests({
+    "callback should return an accumulator and currenValue": function() {
+      const arr = [3, 5];
+      const result = reduceRight(arr, (acc, curr) => {
+        eq(acc, 5);
+        eq(curr, 3);
+        return acc + curr;
+      });
+    },
+    "callback should return an optional index": function() {
+      const arr = [3, 5];
+      reduceRight(arr, (acc, curr, indexCurrentEl) => {
+        eq(indexCurrentEl, 0);
+      });
+    },
+    "callback should return an optional array": function() {
+      const arr = [3, 5];
+      reduceRight(arr, (acc, curr, indexCurrentEl, array) => {
+        eq(array, arr);
+      });
+    },
+    "Should runs the callback function once for each element present in the array": function() {
+      const arr = [3, 5, 8, 9];
+      let count = 0;
+      reduceRight(
+        arr,
+        () => {
+          count++;
+        },
+        0
+      );
+      eq(count, 4);
+    },
+    "Should excluding holes in the array": function() {
+      const arr = [, 3, 5, , 8, 9, ,];
+      let count = 0;
+      reduceRight(
+        arr,
+        () => {
+          count++;
+        },
+        0
+      );
+      eq(count, 4);
+    },
+    "If an initialValue was provided in the call to reduceRight, then accumulator will be equal to initialValue  and currentValue will be equal to the last value in the array": function() {
+      const arr = [5];
+
+      reduceRight(
+        arr,
+        (acc, curr) => {
+          eq(acc, 0);
+          eq(curr, 5);
+        },
+        0
+      );
+    },
+    "If no initialValue was provided, then accumulator will be equal to the last value in the array and currentValue will be equal to the second-to-last value.": function() {
+      const arr = [3, 5];
+
+      reduceRight(arr, (acc, curr) => {
+        eq(acc, 5);
+        eq(curr, 3);
+      });
+    },
+    "If the array has only one element (regardless of position) and no initialValue was provided, the solo value would be returned without calling callback.": function() {
+      const arr = [4];
+      let count = 0;
+      const result = reduceRight(arr, () => {
+        count++;
+      });
+      eq(result, arr[0]);
+      eq(count, 0);
+    },
+    "If initialValue is provided but the array is empty, the solo value would be returned without calling callback.": function() {
+      const arr = [];
+      let count = 0;
+      const result = reduceRight(
+        arr,
+        () => {
+          count++;
+        },
+        2
+      );
+      eq(result, 2);
+      eq(count, 0);
+    },
+    "Calling reduceRight on an empty array without an initial value is an error.": function() {
+      const arr = [];
+
+      try {
+        reduceRight(arr, () => {});
+      } catch (e) {
+        eq(e instanceof TypeError, true);
+      }
+    },
+    "Should return a reduction de right to left without initialValue.": function() {
+      const arr = [3, 5, 10];
+      const result = reduceRight(arr, (acc, curr) => {
+        return acc + curr;
+      });
+      eq(result, 18);
+    },
+    "Should return a reduction de right to left with initialValue.": function() {
+      const arr = [3, 5, 10];
+      const result = reduceRight(
+        arr,
+        (acc, curr) => {
+          return acc + curr;
+        },
+        10
+      );
+      eq(result, 28);
+    },
+    "Should return a reduction de right to left with an array of initialValue.": function() {
+      const arr = [3, 5, 10];
+      const result = reduceRight(
+        arr,
+        (acc, curr) => {
+          return acc.concat(curr);
+        },
+        []
+      );
+      eq(result[0], [10]);
+      eq(result[1], [5]);
+      eq(result[2], [3]);
+    }
+  });
+</script>
