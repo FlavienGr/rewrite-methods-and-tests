@@ -1,0 +1,183 @@
+<script src="../tinytest.js"></script>
+<script>
+  // Return value
+  // shallow copy of a portion of an array into a new array object selected from begin to end (end not included)
+
+  //////////////////////Parameters
+  ///////// Begin parameter
+
+  // Zero-based index at which to begin extraction.
+
+  ////////////End parameter
+  //Zero-based index before which to end extraction
+
+  ///////////////// TEST
+  // should not modified the original array.
+
+  // It returns a shallow copy of elements from the original array.
+
+  //For object references, slice copies object references into the new array.
+  // For strings, numbers and booleans (not String, Number and Boolean objects), slice copies the values into the new array
+
+  //Changes to the string, number or boolean in one array do not affect the other array.
+  // If a new element is added to either array, the other array is not affected.
+
+  //A negative index can be used, indicating an offset from the end of the sequence. slice(-2) extracts the last two elements in the sequence.
+  //If begin is undefined, slice begins from index 0.
+
+  // if End, should extract up to this number without take it
+  //If end is omitted, slice extracts through the end of the sequence
+  //If end is greater than the length of the sequence, slice extracts through to the end of the sequence
+
+  // If array is empty return an empty array
+  // Should throw a TypeError if array is not an array
+  const slice = (array, begin, end) => {
+    if (!Array.isArray(array)) throw new SyntaxError("should be an array");
+    let newArray = [];
+
+    if (array.length < 1) return newArray;
+
+    let startIndex = 0;
+    let endIndex = array.length;
+
+    if (begin) {
+      if (begin < 0) {
+        startIndex = array.length - Math.abs(begin);
+      } else if (begin >= array.length) {
+        return newArray;
+      } else {
+        startIndex = begin;
+      }
+    }
+    if (end) {
+      if (end < 0) {
+        endIndex = array.length - Math.abs(end);
+      } else if (end > array.length) {
+        endIndex = array.length;
+      } else {
+        endIndex = end;
+      }
+    }
+    for (let i = startIndex; i < endIndex; i++) {
+      newArray.push(array[i]);
+    }
+
+    return newArray;
+  };
+
+  tests({
+    "Should not modified the original array": function() {
+      const arr = ["mac", "apple", "iphone"];
+      const result = slice(arr);
+      eq(result === arr, false);
+    },
+    "It returns a shallow copy of elements from the original array": function() {
+      const arr = ["mac", "apple", "iphone"];
+      const result = slice(arr);
+
+      eq(result[0], "mac");
+      eq(result[1], "apple");
+      eq(result[2], "iphone");
+      eq(result.length, arr.length);
+    },
+    "For object references, slice copies object references into the new array.": function() {
+      const arr = [
+        "mac",
+        "apple",
+        "iphone",
+        { price: "too much", quality: "good" }
+      ];
+      const result = slice(arr);
+      eq(result[3] === arr[3], true);
+    },
+    "For strings, numbers and booleans (not String, Number and Boolean objects), slice copies the values into the new array": function() {
+      const arr = ["mac", true, 1];
+      const result = slice(arr);
+      eq(result[0], "mac");
+      eq(result[1], true);
+      eq(result[2], 1);
+    },
+    "Changes to the string, number or boolean in one array do not affect the other array.": function() {
+      const arr = ["mac", true, 1];
+      const result = slice(arr);
+      //// modif array result to see impact on arr
+      result[0] = "microsoft";
+      result[1] = false;
+      result[2] = 19;
+
+      // verification changement result
+      eq(result[0], "microsoft");
+      eq(result[1], false);
+      eq(result[2], 19);
+      // verification arr
+      eq(arr[0], "mac");
+      eq(arr[1], true);
+      eq(arr[2], 1);
+    },
+    "If a new element is added to either array, the other array is not affected.": function() {
+      const arr = ["mac", true, 1];
+      const result = slice(arr);
+
+      arr.push("microsoft");
+
+      eq(arr[arr.length - 1], "microsoft");
+      eq(result[result.length - 1], 1);
+    },
+    "If begin is undefined, slice begins from index 0.": function() {
+      const arr = ["mac", true, 1];
+      const result = slice(arr);
+
+      eq(result[0], "mac");
+      eq(result[1], true);
+      eq(result[2], 1);
+    },
+    "If begin is negative index can be used, indicating an offset from the end of the sequence": function() {
+      const arr = ["mac", true, 1, "car"];
+      const result = slice(arr, -2);
+
+      eq(result[0], 1);
+      eq(result[result.length - 2], 1);
+    },
+    "If begin is greater than the length of the sequence, an empty array is returned.": function() {
+      const arr = ["mac", "apple", "iphone", "sun"];
+      const result = slice(arr, 1);
+
+      eq(result.length, 3);
+    },
+    "If End, should extract up to this number without take it.": function() {
+      const arr = ["mac", "apple", "iphone", "sun"];
+      const result = slice(arr, 1, 4);
+      eq(result[0], "apple");
+      eq(result[2], "sun");
+      eq(result.length, 3);
+    },
+    "If end is omitted, slice extracts through the end of the sequence (arr.length).": function() {
+      const arr = ["mac", true, 1, "car"];
+      const result = slice(arr, 3);
+
+      eq(result[0], "car");
+    },
+    "If end is greater than the length of the sequence, slice extracts through to the end of the sequence (arr.length)..": function() {
+      const arr = ["mac", "apple", "iphone", "sun"];
+      const result = slice(arr, 1, 12);
+
+      eq(result[0], "apple");
+      eq(result[2], "sun");
+      eq(result.length, 3);
+    },
+    "If array is empty return an empty array": function() {
+      const arr = [];
+      const result = slice(arr, 1, 12);
+
+      eq(result.length, 0);
+    },
+    "Should throw a TypeError if array is not an array": function() {
+      const arr = { price: "too much", quality: "good" };
+      try {
+        const result = slice(arr, 1, 12);
+      } catch (e) {
+        eq(e instanceof SyntaxError, true);
+      }
+    }
+  });
+</script>

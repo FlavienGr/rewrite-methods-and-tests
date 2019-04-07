@@ -1,0 +1,114 @@
+<script src="../tinytest.js"></script>
+<script>
+  // Return value
+  // A Boolean which is true if the value valueToFind is found within the array
+
+  //Parameters
+  // valueToFind
+  ////////////Optional
+  /////////////The position in this array at which to begin searching for valueToFind;
+
+  ///////////////// TEST
+  // return true if the search value is found
+  // return false if the search value is not found
+
+  // When comparing strings and characters, includes() is case-sensitive.
+
+  // If fromIndex, it should begin searching starting from fromIndex.
+  // If fromIndex is greater than array.length, it should return false.
+  // If fromIndex is negative, it should still search the array.
+  // If fromIndex is negative, it should be taken as an offset from the end of the array.
+  // It should return true if searchElement is NaN and array contains NaN.
+  // It should consider all values of zero to be equal.
+
+  const includes = (array, valueToFind, index) => {
+    if (!Array.isArray(array)) throw new SyntaxError("should be an array");
+
+    if (
+      valueToFind === undefined ||
+      index >= array.length ||
+      array.length === 0
+    ) {
+      return false;
+    }
+    let startIndex = 0;
+
+    if (index) {
+      if (index < 0) {
+        startIndex = array.length - Math.abs(index);
+      } else {
+        startIndex = index;
+      }
+    }
+
+    for (let i = startIndex; i < array.length; i++) {
+      if (
+        typeof array[i] === "number" &&
+        typeof valueToFind === "number" &&
+        isNaN(array[i]) &&
+        isNaN(valueToFind)
+      ) {
+        return true;
+      }
+      if (array[i] === valueToFind) {
+        return true;
+      }
+    }
+    return false;
+  };
+  tests({
+    "Should return true if the search value is found.": function() {
+      const arr = ["system", "js", "computer"];
+
+      const result = includes(arr, "system");
+      eq(result, true);
+    },
+    "Should return false if the search element is not found.": function() {
+      const arr = ["system", "js", "computer"];
+
+      const result = includes(arr, "apple");
+      eq(result, false);
+    },
+    "Includes() must be case-sensitive.": function() {
+      const arr = ["system", "js", "computer"];
+
+      const result = includes(arr, "System");
+      eq(result, false);
+    },
+    "If fromIndex, it should begin searching starting from fromIndex.": function() {
+      const arr = ["system", "js", "computer"];
+
+      const result = includes(arr, "system", 1);
+      eq(result, false);
+    },
+    "If fromIndex is greater than array.length, it should return false": function() {
+      const arr = ["system", "js", "computer"];
+
+      const result = includes(arr, "js", 5);
+      eq(result, false);
+    },
+    "If fromIndex is negative, it should still search the array.": function() {
+      const arr = ["system", "js", "computer", "5"];
+
+      const result = includes(arr, "js", -15);
+
+      eq(result, true);
+    },
+    "It should return true if searchElement is NaN and array contains NaN": function() {
+      const arr = [NaN];
+
+      const result = includes(arr, NaN);
+
+      eq(result, true);
+    },
+    "If not an Array, should throw Uncaught SyntaxError: Unexpected token.": function() {
+      const arr = { desc: "error" };
+
+      try {
+        const result = includes(arr, "desc");
+      } catch (e) {
+        eq(e instanceof SyntaxError, true);
+      }
+    }
+  });
+</script>

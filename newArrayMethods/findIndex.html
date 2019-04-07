@@ -114,7 +114,7 @@
       });
       eq(numberOfCallback, 3);
     },
-    "If an existing, unvisited element of the array is changed by callback, its value passed to the visiting callback will be the value at the time that findIndex visits that element's index.": () => {
+    "If an existing, unvisited element of the array is changed by callback, its value passed to the visiting callback will be the value at the time that findIndex visits that elements index.": () => {
       const arr = [1, 2, 3];
 
       findIndex(arr, (element, index) => {
