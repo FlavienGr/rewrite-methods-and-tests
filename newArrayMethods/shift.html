@@ -1,0 +1,49 @@
+<script src="../tinytest.js"></script>
+<script>
+  // Return value
+  //removes the first element from an array and returns that removed element
+  //Parameters
+
+  ///////////////// TEST
+  // should remove the first element from an array
+  // should return that element removed.
+  // should change the length of the array.
+  // If array is empty, it returns undefined.
+  // If not an Array, should throw Uncaught TypeError
+  const shift = array => {
+    if (!Array.isArray(array)) throw new TypeError("should be an array");
+
+    if (array.length < 1) return undefined;
+    let newPop = array[0];
+    array.splice(0, 1);
+
+    return newPop;
+  };
+
+  tests({
+    "should remove the first element from an array": function() {
+      const arr = ["angel", "clown", "mandarin", "sturgeon"];
+      shift(arr);
+      eq(arr[0], "clown");
+      eq(arr[1], "mandarin");
+      eq(arr[2], "sturgeon");
+    },
+    "should return that element removed.": function() {
+      const arr = ["angel", "clown", "mandarin", "sturgeon"];
+      const result = shift(arr);
+      eq(result, "angel");
+    },
+    "should change the length of the array.": function() {
+      const arr = ["angel", "clown", "mandarin", "sturgeon"];
+      shift(arr);
+      eq(arr.length, 3);
+    },
+    "If not an Array, should throw Uncaught TypeError": function() {
+      try {
+        shift({});
+      } catch (e) {
+        eq(e instanceof TypeError, true);
+      }
+    }
+  });
+</script>

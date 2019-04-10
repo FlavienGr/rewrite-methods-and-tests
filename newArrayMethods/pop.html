@@ -1,0 +1,50 @@
+<script src="../tinytest.js"></script>
+<script>
+  // Return value
+  //The removed element from the array; undefined if the array is empty.
+  //Parameters
+
+  ///////////////// TEST
+  // should remove the last element from an array
+  // should return that element removed.
+  // should change the length of the array.
+  // If array is empty, it returns undefined.
+  // If not an Array, should throw Uncaught TypeError
+  const pop = array => {
+    if (!Array.isArray(array)) throw new TypeError("should be an array");
+
+    if (array.length < 1) return undefined;
+    let newPop = array[array.length - 1];
+    array.splice(array.length - 1, 1);
+
+    return newPop;
+  };
+
+  tests({
+    "should remove the last element from an array": function() {
+      const arr = ["angel", "clown", "mandarin", "sturgeon"];
+      pop(arr);
+      eq(arr[0], "angel");
+      eq(arr[1], "clown");
+      eq(arr[2], "mandarin");
+      eq(arr[3], undefined);
+    },
+    "should return that element removed.": function() {
+      const arr = ["angel", "clown", "mandarin", "sturgeon"];
+      const result = pop(arr);
+      eq(result, "sturgeon");
+    },
+    "should change the length of the array.": function() {
+      const arr = ["angel", "clown", "mandarin", "sturgeon"];
+      pop(arr);
+      eq(arr.length, 3);
+    },
+    "If not an Array, should throw Uncaught TypeError": function() {
+      try {
+        pop({});
+      } catch (e) {
+        eq(e instanceof TypeError, true);
+      }
+    }
+  });
+</script>

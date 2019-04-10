@@ -1,0 +1,49 @@
+<script src="../tinytest.js"></script>
+<script>
+  // The push method relies on a length property to determine where to start inserting the given values
+  // Return value
+
+  //Parameters
+  //The elements to add to the end of the array.
+
+  ///////////////// TEST
+  // adds one or more elements to the end of an array
+  // should return the new length of the array.
+  // If not an Array, should throw Uncaught TypeError
+  const push = (array, ...elements) => {
+    if (!Array.isArray(array)) throw new TypeError("should be an array");
+    if (elements.length < 1) return array.length;
+
+    let startIndexArray = array.length;
+    let endLengthElements = elements.length;
+    let starIndexElements = 0;
+
+    for (let j = starIndexElements; j < endLengthElements; j++) {
+      array[startIndexArray] = elements[j];
+      startIndexArray++;
+    }
+    return array.length;
+  };
+  tests({
+    "adds one or more elements to the end of an array": function() {
+      const result = push([3, 5, 6], "table", "garden");
+      eq(result, 5);
+    },
+    "should return the new length of the array.": function() {
+      const result = push([3, 5, 6], "garden");
+      eq(result, 4);
+    },
+    "Push an Object": function() {
+      const result = push([3, 5, 6], {});
+      eq(result, 4);
+    },
+    "If not an Array, should throw Uncaught TypeError": function() {
+      const data = { password: "123" };
+      try {
+        const result = push(data, "house");
+      } catch (e) {
+        eq(e instanceof TypeError, true);
+      }
+    }
+  });
+</script>

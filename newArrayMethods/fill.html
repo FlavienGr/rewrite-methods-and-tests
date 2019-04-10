@@ -1,0 +1,127 @@
+<script src="../tinytest.js"></script>
+<script>
+  // Return value
+  // Modifies all the elements of an array from a start index (default zero) to an end index
+  // It returns the modified array.
+  //Parameters
+  // value
+  // start ( Start index, defaults to 0 )
+  // end (End index, defaults to this.length.)
+  ///////////////// TEST
+  // should return the modified array.
+  // should modify all the elements of an array from a start index to an index
+  // it will change this object itself, and return it, not just return a copy of it.
+  // When fill gets passed an object, it will copy the reference and fill the array with references to that object.
+
+  const fill = (array, value, start, end) => {
+    if (!Array.isArray(array)) throw new TypeError("should be an array");
+    const newArray = [];
+    if (array.length < 1) return newArray;
+    let startLimit =
+      start === undefined
+        ? undefined
+        : start < 0
+        ? array.length - Math.abs(start)
+        : start;
+    let endLimit =
+      end === undefined
+        ? undefined
+        : end < 0
+        ? array.length - 1 - Math.abs(end)
+        : end - 1;
+
+    for (let i = 0; i < array.length; i++) {
+      if (value === undefined) {
+        newArray.push(value);
+      } else {
+        if (i >= startLimit && i <= endLimit) {
+          newArray.push(value);
+        } else if (i >= startLimit && endLimit === undefined) {
+          newArray.push(value);
+        } else {
+          newArray.push(array[i]);
+        }
+      }
+    }
+    return newArray;
+  };
+
+  tests({
+    "should return the modified array": function() {
+      const arr = ["bird", "dog", "cat", 3, true, "square"];
+
+      const result = fill(arr, "electro", 1, 2);
+      eq(arr === result, false);
+    },
+    "should modify all the elements of an array from a start index to an end index": function() {
+      const arr = ["bird", "dog", "cat", 3, true, "square"];
+
+      const result = fill(arr, "electro", 1, 2);
+      eq(result.length, 6);
+      eq(result[0], "bird");
+      eq(result[1], "electro");
+      eq(result[2], "cat");
+    },
+    "should modify all the elements of an array from a just a start to the end of this array": function() {
+      const arr = ["bird", "dog", "cat", 3, true, "square"];
+
+      const result = fill(arr, "electro", 1);
+      eq(result.length, 6);
+      eq(result[0], "bird");
+      eq(result[1], "electro");
+      eq(result[2], "electro");
+    },
+    "it will change this object itself, and return it, not just return a copy of it.": function() {
+      const arr = ["bird", "dog", "cat", 3, true, "square"];
+
+      const result = fill(arr);
+      eq(arr === result, false);
+    },
+    "When fill gets passed an object, it will copy the reference and fill the array with references to that object": function() {
+      const arr = ["bird", "dog", "{}", 3, true, "square"];
+
+      const result = fill(arr, "sport", 0, 1);
+      eq(result[0], "sport");
+      eq(result[2], arr[2]);
+    },
+    "If no arguments, sould return an array with X elements undefined": function() {
+      const arr = ["bird", "dog"];
+      const result = fill(arr);
+      eq(result[0], undefined);
+      eq(result[1], undefined);
+    },
+    "If not an Array, should throw Uncaught TypeError": function() {
+      try {
+        fill({});
+      } catch (e) {
+        eq(e instanceof TypeError, true);
+      }
+    },
+    "If no arguments and array is empty, should return an empty array": function() {
+      const arr = [];
+      const result = fill(arr);
+      eq(result.length, 0);
+    },
+    "If start is negative, it is treated as length+start ": function() {
+      const arr = ["bird", "dog", "cat", 3, true, "square"];
+      const result = fill(arr, "sun", -3, 4);
+      eq(result[2], "cat");
+      eq(result[3], "sun");
+      eq(result[4], true);
+    },
+    "If end is negative, it is treated as length+end": function() {
+      const arr = ["bird", "dog", "cat", 3, true, "square"];
+      const result = fill(arr, "animal", 1, -4);
+      eq(result[1], "animal");
+      eq(result[2], "cat");
+      eq(result[3], 3);
+    },
+    "If end and Start are negative": function() {
+      const arr = [1, 2, 3];
+      const result = fill(arr, 4, -3, -2);
+      eq(result[0], 4);
+      eq(result[1], 2);
+      eq(result[2], 3);
+    }
+  });
+</script>

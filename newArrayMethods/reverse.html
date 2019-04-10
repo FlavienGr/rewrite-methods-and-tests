@@ -1,0 +1,62 @@
+<script src="../tinytest.js"></script>
+<script>
+  // Return value
+  //The reversed array.
+
+  //Parameters
+
+  ///////////////// TEST
+  // should reverse the array
+  // should mutating the array
+  // returning a reference to the array.
+  // if array is empty, should return an empty array
+  // if is not an array should return TypeError
+
+  const reverse = array => {
+    if (!Array.isArray(array)) throw new TypeError("should be an array");
+    if (array.length < 1) return array;
+
+    const backUp = array.slice();
+    let startIndex = 0;
+    for (let i = array.length - 1; i >= 0; i--) {
+      array[startIndex] = backUp[i];
+      startIndex++;
+    }
+    return array;
+  };
+
+  tests({
+    "should reverse the array": function() {
+      const arr = ["home", "computer", "garden"];
+      reverse(arr);
+      eq(arr[0], "garden");
+      eq(arr[1], "computer");
+      eq(arr[2], "home");
+    },
+    "should mutating the array": function() {
+      const arr = ["home", "computer", "garden"];
+      const backUp = arr.splice();
+      const result = reverse(arr);
+      eq(arr[0] !== backUp[0], true);
+      eq(result === arr, true);
+    },
+    "Should returning a reference to the array.": function() {
+      const arr = ["home", "computer", "garden"];
+      const result = reverse(arr);
+      eq(Array.isArray(result), true);
+      eq(result === arr, true);
+    },
+    "if array is empty, should return an empty array": function() {
+      const result = reverse([]);
+      eq(Array.isArray(result), true);
+      eq(result.length, 0);
+    },
+    "if is not an array should return TypeError": function() {
+      try {
+        reverse({});
+      } catch (e) {
+        eq(e instanceof TypeError, true);
+      }
+    }
+  });
+</script>
