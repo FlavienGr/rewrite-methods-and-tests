@@ -1,0 +1,184 @@
+<script src="../tinytest.js"></script>
+<script>
+  // Return value
+  //method changes the contents of an array by removing or replacing existing elements and/or adding new elements in place.
+  //An array containing the deleted elements. If only one element is removed, an array of one element is returned. If no elements are removed, an empty array is returned.
+  //Parameters
+  // start
+  /////// optional
+  // deleteCount
+  // item1, item2, ...
+  ///////////////// TEST
+  // should change the contents of an array by removing existing elements
+  // should change the contents of an array by replacing existing elements
+  // should add new elements of an array
+
+  // Should modify the existing arr.
+
+  // if start is greater than the length of the array, actual starting index will be set to the length of the array
+  // If start is negative, will begin that many elements from the end of the array
+  // will be set to 0 if absolute value is greater than the length of the array.
+
+  // If deleteCount is omitted, or if its value is equal to or larger than array.length - start (that is, if it is equal to or greater than the number of elements left in the array, starting at start), then all of the elements from start through the end of the array will be deleted.
+  // If deleteCount is 0 or negative, no elements are removed. In this case, you should specify at least one new element (see below).
+
+  // if only one element is removed, an array of one element is returned.
+  // If no elements are removed, an empty array is returned.
+  const splice = (array, ...args) => {
+    if (!Array.isArray(array)) throw new TypeError("should be an array");
+    let newArray = [];
+
+    if (array.length < 1 || args.length < 1) return newArray;
+
+    let start =
+      args[0] === undefined
+        ? undefined
+        : args[0] >= 0
+        ? args[0]
+        : Math.abs(args[0]) > array.length
+        ? 0
+        : array.length - Math.abs(args[0]);
+    let deleteCount =
+      args[1] === undefined
+        ? array.length - 1
+        : args[1] >= 0 && args[1] <= array.length - start
+        ? args[1]
+        : array.length - 1;
+    let items = [];
+    if (args.length >= 2) {
+      for (let i = 2; i < args.length; i++) {
+        items.push(args[i]);
+      }
+    }
+
+    let backUp = [];
+    let numberOfDelete = deleteCount;
+    let numberOfAdd = items.length;
+
+    array.forEach((item, i) => {
+      if (start <= i && numberOfDelete > 0 && items.length < 1) {
+        newArray.push(item);
+        numberOfDelete--;
+      } else if (start <= i && numberOfDelete > 0 && items.length >= 1) {
+        backUp.push(...items);
+        newArray.push(item);
+        numberOfDelete--;
+      } else if (start <= i && deleteCount === 0 && items.length < 1) {
+        return newArray;
+      } else if (
+        start <= i &&
+        deleteCount === 0 &&
+        items.length >= 1 &&
+        numberOfAdd > 0
+      ) {
+        backUp.push(...items);
+        backUp.push(array[i]);
+
+        numberOfAdd = 0;
+      } else {
+        backUp.push(array[i]);
+      }
+    });
+    backUp.forEach((element, i) => {
+      if (i < backUp.length) {
+        array[i] = backUp[i];
+      }
+    });
+    if (array.length > backUp.length) {
+      array.length = backUp.length;
+    }
+
+    return newArray;
+  };
+  tests({
+    "Should change the contents of an array by removing existing elements": function() {
+      const arr = ["dog", "house", "iphone", 1, "sun", "terre", "mac"];
+      const result = splice(arr, 2, 2);
+      eq(result[0], "iphone");
+      eq(result[1], 1);
+      eq(arr.length, 5);
+    },
+    "should add new elements of an array": function() {
+      const arr = ["dog", "house", "iphone", 1, "sun", "terre", "mac"];
+      const result = splice(arr, 2, 0, "chocolat", "light");
+      eq(result.length, 0);
+      eq(arr.length, 9);
+      eq(arr[1], "house");
+      eq(arr[2], "chocolat");
+      eq(arr[3], "light");
+      eq(arr[4], "iphone");
+    },
+    "should change the contents of an array by replacing existing elements": function() {
+      const arr = ["dog", "house", "iphone", 1, "sun", "terre", "mac"];
+      const result = splice(arr, 3, 1, "october");
+      eq(arr.length, 7);
+      eq(arr[3], "october");
+      eq(result.length, 1);
+      eq(result[0], 1);
+    },
+    "Should modify the existing arr": function() {
+      const arr = ["dog", "house", "iphone", 1, "sun", "terre", "mac"];
+      splice(arr, 3, 1, "october");
+      eq(arr.length, 7);
+    },
+    "if start is greater than the length of the array, actual starting index will be set to the length of the array": function() {
+      const arr = ["dog", "house", "iphone", 1, "sun", "terre", "mac"];
+      const result = splice(arr, 8);
+      eq(result.length, 0);
+    },
+    "If start is negative, will begin that many elements from the end of the array": function() {
+      const arr = ["dog", "house", "iphone", 1, "sun", "terre", "mac"];
+      const result = splice(arr, -1);
+      eq(result.length, 1);
+      eq(result[0], "mac");
+    },
+    "If start is negative will be set to 0 if absolute value is greater than the length of the array.": function() {
+      const arr = ["dog", "house", "iphone", 1, "sun", "terre", "mac"];
+      const result = splice(arr, -11, 1);
+      eq(result.length, 1);
+      eq(result[0], "dog");
+      eq(arr[0], "house");
+    },
+    "If deleteCount is omitted, or if its value is equal to or larger than array.length - start": function() {
+      const arr = ["dog", "house", "iphone", 1, "sun", "terre", "mac"];
+      const result = splice(arr, 5);
+      eq(result.length, 2);
+      eq(result[0], "terre");
+      eq(result[1], "mac");
+      eq(arr[arr.length - 1], "sun");
+    },
+    "If deleteCount is 0 or negative, no elements are removed. In this case, you should specify at least one new element (see below).": function() {
+      const arr = ["dog", "house", "iphone", 1, "sun", "terre", "mac"];
+      const result = splice(arr, 5, 0, "hello");
+      eq(result.length, 0);
+      eq(arr.length, 8);
+    },
+    "if only one element is removed, an array of one element is returned.": function() {
+      const arr = ["dog", "house", "iphone", 1, "sun", "terre", "mac"];
+      const result = splice(arr, 1, 1);
+      eq(result.length, 1);
+    },
+    "if only one element is removed, an array of one element is returned.": function() {
+      const arr = ["dog", "house", "iphone", 1, "sun", "terre", "mac"];
+      const result = splice(arr, 1, 1);
+      eq(result.length, 1);
+    },
+    "If no elements are removed, an empty array is returned.": function() {
+      const arr = ["dog", "house", "iphone", 1, "sun", "terre", "mac"];
+      const result = splice(arr, 1, 0);
+      eq(result.length, 0);
+    },
+    "if is not an array should return TypeError": function() {
+      try {
+        splice({});
+      } catch (e) {
+        eq(e instanceof TypeError, true);
+      }
+    },
+    "if array is empty, should return an empty array": function() {
+      const arr = [];
+      const result = splice(arr);
+      eq(result.length, 0);
+    }
+  });
+</script>

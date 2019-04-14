@@ -1,0 +1,84 @@
+<script src="../tinytest.js"></script>
+<script>
+  // Return value
+  //The sorted array. Note that the array is sorted in place, and no copy is made.
+
+  //Parameters
+  /////compareFunction
+  //firstEl = The first element for comparison.
+  //secondEl = The second element for comparison.
+
+  ///////////////// TEST
+  // should return this array
+
+  // if compare function, should specifies define the sort order.
+  // all undefined elements are sorted to the end of the array, with no call to compareFunction
+
+  // if no compare function, the array is sorted according to each character's Unicode code point value, according to the string conversion of each element.
+
+  const sort = (array, compareFunc) => {
+    if (!Array.isArray(array)) throw new TypeError("should be an array");
+    if (compareFunc === undefined) {
+      compareFunc = (a, b) => {
+        if (a < b) return -1;
+        if (a > b) return 1;
+        if (a < b) return 0;
+      };
+    }
+    let len = array.length;
+    let countUndefined = 0;
+
+    for (let i = 0; i < len - countUndefined; i++) {
+      if (array[i] !== undefined && typeof array[i] !== "string") {
+        array[i] = JSON.stringify(array[i]);
+      }
+      if (array[i] === undefined) {
+        array[i] = array[len - 1];
+        array[len - 1] = undefined;
+        countUndefined++;
+      }
+    }
+
+    for (let i = 0; i < len; i++) {
+      for (let j = 0; j < len; j++) {
+        let temp = array[j];
+        if (compareFunc(array[j], array[j + 1]) > 0) {
+          array[j] = array[j + 1];
+          array[j + 1] = temp;
+        }
+      }
+    }
+    return array;
+  };
+  tests({
+    "should return this array": function() {
+      const arr = [35, 20, 12, 8];
+
+      eq(sort(arr), arr);
+    },
+    "if compare function, should specifies define the sort order": function() {
+      const arr = [8, 12, 20, 35];
+
+      const result = sort(arr, (a, b) => b - a);
+      eq(result[0], 35);
+      eq(result[1], 20);
+      eq(result[2], 12);
+      eq(result[3], 8);
+    },
+    "all undefined elements are sorted to the end of the array, with no call to compareFunction": function() {
+      const arr = [8, 12, 20, undefined, 35];
+      const result = sort(arr);
+
+      eq(result[4], undefined);
+    },
+    "if no compare function, the array is sorted according to each characters ": function() {
+      const arr = [35, 20, 12, 8];
+
+      const result = sort(arr);
+      eq(result[0], 12);
+      eq(result[1], 20);
+      eq(result[2], 35);
+      eq(result[3], 8);
+    }
+  });
+</script>
